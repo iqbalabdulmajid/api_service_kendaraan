@@ -1,9 +1,16 @@
 const db = require('../config/db');
 
+
 exports.getAllBookings = async (req, res) => {
     try {
-        const [bookings] = await db.query("SELECT * FROM service_bookings");
-        res.json(bookings);
+        const query = `
+            SELECT b.*, st.name AS status_name, s.schedule_date 
+            FROM service_bookings b
+            JOIN service_statuses st ON b.service_status_id = st.id
+            JOIN service_schedules s ON b.service_schedule_id = s.id
+            ORDER BY b.id DESC`;
+        const [rows] = await db.query(query);
+        res.json(rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
